@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+<PreferenceCategory
+    android:title="Data Sync"
+    android:key="data_sync" >
+
+<CheckBoxPreference
+    android:defaultValue="false"
+    android:title="This will allow automatic sync"
+    android:key="pref_sync"
+    android:summary="Only if Wi-Fi available!!!" />
+
+    <ListPreference
+
+        android:dependency="pref_sync"
+        android:dialogTitle="Allowing Data Sync Interval"
+
+        android:entries="@array/pref_syncConnectionTypes_entries"
+        android:entryValues="@array/pref_syncConnectionTypes_values"
+        android:key="pref_sync_list"
+        android:title="Interval Sync"
+        android:summary="%s"
+        android:defaultValue="1" />
+
+ </PreferenceCategory>
+
+
+</PreferenceScreen>
