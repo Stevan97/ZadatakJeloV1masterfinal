@@ -6,6 +6,7 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -24,11 +25,15 @@ import android.widget.Toast;
 
 import com.example.zadatakjelov1masterfinal.R;
 import com.example.zadatakjelov1masterfinal.adapters.DrawerAdapter;
+import com.example.zadatakjelov1masterfinal.async.MyReceiver;
+import com.example.zadatakjelov1masterfinal.async.MyService;
 import com.example.zadatakjelov1masterfinal.dialogs.AboutDialog;
 import com.example.zadatakjelov1masterfinal.fragments.DetailFragment;
 import com.example.zadatakjelov1masterfinal.fragments.FragmentListaJela;
 import com.example.zadatakjelov1masterfinal.fragments.MasterFragment;
 import com.example.zadatakjelov1masterfinal.model.NavigationItem;
+import com.example.zadatakjelov1masterfinal.providers.JeloProvider;
+import com.example.zadatakjelov1masterfinal.tools.ReviewerTools;
 
 import java.util.ArrayList;
 
@@ -38,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements MasterFragment.On
    private MasterFragment masterFragment = null;
    private DetailFragment detailFragment = null;
    private int position = 0;
+   MyReceiver myReceiver;
 
     private DrawerLayout drawerLayout;
     private ListView drawerList;
@@ -51,6 +57,8 @@ public class MainActivity extends AppCompatActivity implements MasterFragment.On
 
     // Attributes representing the activity's state
     private boolean landscapeMode = false; // Is the device in the landscape mode?
+
+
 
 
     // ** Pozicije u Navigation DRAWERU.(navList)
@@ -269,4 +277,9 @@ public class MainActivity extends AppCompatActivity implements MasterFragment.On
         outState.putInt("position",position);
 
     }
+
+
+
+
+
 }

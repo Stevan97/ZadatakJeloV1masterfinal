@@ -77,6 +77,15 @@ public class JeloProvider {
 
     }
 
+    public static Jelo getCeloJeloById(int id) {
+        for (Jelo j: getJela()) {
+            if (j.getId() == id) {
+                return j;
+            }
+        }
+        return null;
+     }
+
 
 
 

@@ -1,12 +1,17 @@
 package com.example.zadatakjelov1masterfinal.fragments;
 
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,8 +24,13 @@ import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import com.example.zadatakjelov1masterfinal.R;
+import com.example.zadatakjelov1masterfinal.activities.MainActivity;
+import com.example.zadatakjelov1masterfinal.async.MyAsyncTask;
+import com.example.zadatakjelov1masterfinal.async.MyReceiver;
+import com.example.zadatakjelov1masterfinal.async.MyService;
 import com.example.zadatakjelov1masterfinal.providers.CategoryProvider;
 import com.example.zadatakjelov1masterfinal.providers.JeloProvider;
+import com.example.zadatakjelov1masterfinal.tools.ReviewerTools;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,13 +41,16 @@ import java.util.List;
  */
 public class DetailFragment extends android.app.Fragment {
 
+    private Context context;
     private int position = 0;
+    MyReceiver myReceiver;
 
     public interface OnSpinnerSelected {
         void onSpinnerClick(int position);
     }
 
     OnSpinnerSelected listener;
+
 
 
 
@@ -50,17 +63,18 @@ public class DetailFragment extends android.app.Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+
         return inflater.inflate(R.layout.fragment_detail, container, false);
+
+
     }
 
     @Override
-    public void onAttach(Context context) {
-
-        super.onAttach(context);
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
 
         try {
-            listener = (OnSpinnerSelected)getActivity();
+            listener = (OnSpinnerSelected)activity;
         } catch (ClassCastException e) {
             e.toString();
         }
@@ -82,7 +96,7 @@ public class DetailFragment extends android.app.Fragment {
         spinner.setSelection(position);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemSelected(AdapterView<?> parent, View view, final int position, long id) {
                 listener.onSpinnerClick(position);
                 final List<String> listaJela = JeloProvider.getJeloNameByCategoryId(position);
                 final ListView listVJela = getView().findViewById(R.id.list_view);
@@ -91,6 +105,7 @@ public class DetailFragment extends android.app.Fragment {
 
                 final TextView opisJela = getView().findViewById(R.id.textView);
                 final ImageView imageView = getView().findViewById(R.id.image_view);
+                final FloatingActionButton floatingActionButton = getView().findViewById(R.id.floatingActionButton);
 
                 opisJela.setText(JeloProvider.jeloNull().toString());
 
@@ -105,8 +120,9 @@ public class DetailFragment extends android.app.Fragment {
 
                 listVJela.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                         opisJela.setText(JeloProvider.getJeloByName(listaJela.get(position)).toString());
+
 
                         try {
                             InputStream is = getActivity().getAssets().open(JeloProvider.getJeloByName(listaJela.get(position)).getImage());
@@ -115,8 +131,28 @@ public class DetailFragment extends android.app.Fragment {
                         } catch (IOException e) {
                             e.toString();
                         }
+
+
+                        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                int status = ReviewerTools.getConnectivityStatus(getActivity().getApplicationContext());
+                                String string = JeloProvider.getJeloByName(listaJela.get(position)).getNaziv();
+                                Intent intent = new Intent(getActivity(), MyService.class);
+                                intent.putExtra("STATUS", status);
+                                intent.putExtra("Finish", string);
+                                getActivity().startService(intent);
+
+                            }
+                        });
+
+
                     }
                 });
+
+
+
+
 
             }
 
@@ -197,7 +233,31 @@ public class DetailFragment extends android.app.Fragment {
 
             }
         });
+    }
 
+    public void setUpReceiver() {
+
+        myReceiver = new MyReceiver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("Order");
+        getActivity().registerReceiver(myReceiver, intentFilter);
+
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setUpReceiver();
+
+
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getActivity().unregisterReceiver(myReceiver);
 
     }
 }
